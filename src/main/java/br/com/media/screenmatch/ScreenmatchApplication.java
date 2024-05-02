@@ -1,6 +1,8 @@
 package br.com.media.screenmatch;
 
+import br.com.media.screenmatch.models.DataSerie;
 import br.com.media.screenmatch.service.ApiConsumption;
+import br.com.media.screenmatch.service.DataConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -24,13 +26,15 @@ public class ScreenmatchApplication implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		Properties properties = new Properties();
 		properties.load(new FileInputStream("config.properties"));
-		String  apiKey = properties.getProperty("apiKey");
-		String name = "Gilmore+Girls";
+		String apiKey = properties.getProperty("apiKey");
+		String name = "The+Flash";
 		String url = "https://www.omdbapi.com/?t=" + name + "&apikey=" + apiKey;
 		var apiConsumption = new ApiConsumption();
 		var json = apiConsumption.getData(url);
-
 		System.out.println(json);
+		DataConverter converter = new DataConverter();
+		DataSerie data = converter.getData(json, DataSerie.class);
+		System.out.println(data);
 	}
 
 }
