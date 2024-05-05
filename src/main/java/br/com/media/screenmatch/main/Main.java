@@ -1,6 +1,7 @@
 package br.com.media.screenmatch.main;
 
 import br.com.media.screenmatch.config.DataConfig;
+import br.com.media.screenmatch.models.EpisodeData;
 import br.com.media.screenmatch.models.SeasonData;
 import br.com.media.screenmatch.models.SerieData;
 import br.com.media.screenmatch.service.ApiConsumption;
@@ -18,6 +19,10 @@ public class Main {
 	private final String ADDRESS = "https://www.omdbapi.com/?t=";
 	private final String API_KEY = dataConfig.getConfig();
 
+	private static void accept(EpisodeData e) {
+		System.out.println(e.title());
+	}
+
 	public void displayMenu() {
 		System.out.println("Insira o nome da série");
 		String serieName = input.nextLine();
@@ -34,7 +39,17 @@ public class Main {
 		}
 
 		seasons.forEach(System.out::println);
-	}
+/*
+		for (int i = 1; i < serie.totalSeasons(); i++){
+			List<EpisodeData> episodes = seasons.get(i).episodes();
 
+			for (int j = 0; j < episodes.size(); j ++){
+				System.out.println(episodes.get(j).title());
+			}
+		}
+		*/
+		//seasons.forEach(s -> s.episodes().forEach(e -> System.out.println(e.title())));
+		seasons.forEach(System.out::println);
 
+		}
 }
