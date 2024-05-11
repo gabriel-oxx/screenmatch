@@ -23,9 +23,9 @@ public class Episode {
 			this.rating = 0.0;
 		}
 
-		try{
+		try {
 			this.releaseDate = LocalDate.parse(episodeData.releaseDate());
-		}catch (DateTimeParseException error){
+		} catch (DateTimeParseException error) {
 			this.releaseDate = null;
 		}
 	}
