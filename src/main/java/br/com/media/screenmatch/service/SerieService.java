@@ -13,6 +13,14 @@ public class SerieService {
 	private DataConfig dataConfig = new DataConfig();
 private final String ADDRESS = "https://www.omdbapi.com/?t=";
 	private final String API_KEY = dataConfig.getConfig();
+	private List<SerieData> series = new ArrayList<>();
+
+	public void searchWebSerie(String serieName){
+		String url = ADDRESS + serieName.replace(" ", "+") + "&apikey=" + API_KEY;
+		String json = consumption.getData(url);
+		SerieData data = converter.getData(json, SerieData.class);
+		series.add(data);
+	}
 
 	public List<SeasonData> getSeasons(String serieName) {
 		String url = ADDRESS + serieName.replace(" ", "+") + "&apikey=" + API_KEY;
