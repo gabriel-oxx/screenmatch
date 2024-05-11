@@ -1,81 +1,55 @@
 package br.com.media.screenmatch.main;
 
-import br.com.media.screenmatch.config.DataConfig;
 import br.com.media.screenmatch.models.Episode;
-import br.com.media.screenmatch.models.EpisodeData;
 import br.com.media.screenmatch.models.SeasonData;
-import br.com.media.screenmatch.models.SerieData;
-import br.com.media.screenmatch.service.ApiConsumption;
-import br.com.media.screenmatch.service.DataConverter;
+import br.com.media.screenmatch.service.*;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class Main {
-	private Scanner input = new Scanner(System.in);
-	private DataConfig dataConfig = new DataConfig();
-	private ApiConsumption consumption = new ApiConsumption();
-	private DataConverter converter = new DataConverter();
-	private final String ADDRESS = "https://www.omdbapi.com/?t=";
-	private final String API_KEY = dataConfig.getConfig();
+	private final Scanner input = new Scanner(System.in);
 
 	public void displayMenu() {
+		SerieService serieService = new SerieService();
+		EpisodeService episodeService = new EpisodeService();
+		RatingService ratingService = new RatingService();
+		DateService dateService = new DateService();
+
 		System.out.println("Insira o nome da série");
 		String serieName = input.nextLine();
-		String url = ADDRESS + serieName.replace(" ", "+") + "&apikey=" + API_KEY;
-		String json = consumption.getData(url);
-		SerieData serie = converter.getData(json, SerieData.class);
-		System.out.println(serie);
-		List<SeasonData> seasons = new ArrayList<>();
 
-		for (int i = 1; i < serie.totalSeasons(); i++) {
-			json = consumption.getData(ADDRESS + serieName.replace(" ", "+") + "&season=" + i + "&apikey=" + API_KEY);
-			SeasonData seasonData = converter.getData(json, SeasonData.class);
-			seasons.add(seasonData);
+		List<SeasonData> seasons = serieService.getSeasons(serieName);
+		seasons.forEach(System.out::println);
+		List<Episode> episodes = episodeService.createEpisodeList(seasons);
+		episodes.forEach(System.out::println);
+		System.out.println("Qual episódio você gostaria de buscar?");
+		var partOfTitle = input.nextLine();
+		Optional<Episode> searchedEpisode = episodeService.searchEpisode(episodes, partOfTitle);
+
+		if (searchedEpisode.isPresent()) {
+			System.out.println("Episódio encontrado!");
+			System.out.println("Temporada: " + searchedEpisode.get().getSeason());
+		} else {
+			System.out.println("Não foi possível encontrar esse episódio.");
 		}
 
-		seasons.forEach(System.out::println);
-//exibindo os títulos dos episódios
-		//seasons.forEach(s -> s.episodes().forEach(e -> System.out.println(e.title())));
-		List<EpisodeData> episodesList = seasons.stream() //Criando um fluxo de dados com os dados de uma temporada
-				.flatMap(s -> s.episodes().stream()) //Criando um fluxo de dados com os dados de um episódio
-				.collect(Collectors.toList()); //Agrupando todos os episódios em uma lista única
+		Map<Integer, Double> ratingsBySeason = ratingService.getRatingsBySeason(episodes);
 
-		System.out.println("Top 5 episódios:\n");
-		episodesList.stream()
-				.filter(e -> !e.rating().equalsIgnoreCase("n/a"))
-				.sorted(
-						Comparator.comparing(EpisodeData::rating).reversed()
-				)
-				.limit(5)
-				.forEach(System.out::println);
+		for (Map.Entry<Integer, Double> entry : ratingsBySeason.entrySet()) {
+			System.out.printf("%d: %.2f\n", entry.getKey(), entry.getValue());
+		}
 
-		List<Episode> episodes = seasons.stream()
-				.flatMap(s -> s.episodes()
-						.stream()
-						.map(d -> new Episode(s.number(), d))
-				)
-				.collect(Collectors.toList());
-
-		episodes.forEach(System.out::println);
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		DoubleSummaryStatistics estatistics = ratingService.getRatingStatistics(episodes);
+		System.out.println("Média: " + estatistics.getAverage());
+		System.out.println("Menor avaliação: " + estatistics.getMin());
+		System.out.println("Maior avaliação:" + estatistics.getMax());
+		System.out.println("Total de episódios avaliados: " + estatistics.getSum());
 		System.out.println("A partir de que ano você deseja ver os episódios?");
 		var year = input.nextInt();
 		input.nextLine();
 		LocalDate dateSearch = LocalDate.of(year, 1, 1);
-		episodes.stream().filter(e -> e.getReleaseDate() != null && e.getReleaseDate().isAfter(dateSearch))
-				.forEach(e -> System.out.println(
-						"Temporada: " + e.getSeason()
-						+ " episódio: " + e.getTitle()
-						+ " data de lançamento: " + e.getReleaseDate().format(formatter)
-				));
+		dateService.filterEpisodesByReleaseDate(episodes, dateSearch);
 	}
 
-
 }
-
