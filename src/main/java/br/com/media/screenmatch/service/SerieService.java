@@ -1,4 +1,4 @@
- package br.com.media.screenmatch.service;
+package br.com.media.screenmatch.service;
 
 import br.com.media.screenmatch.config.DataConfig;
 import br.com.media.screenmatch.models.SeasonData;
@@ -11,31 +11,23 @@ public class SerieService {
 	private ApiConsumption consumption = new ApiConsumption();
 	private DataConverter converter = new DataConverter();
 	private DataConfig dataConfig = new DataConfig();
-private final String ADDRESS = "https://www.omdbapi.com/?t=";
+	private final String ADDRESS = "https://www.omdbapi.com/?t=";
 	private final String API_KEY = dataConfig.getConfig();
 	private List<SerieData> series = new ArrayList<>();
+	SerieData data;
 
-	public void searchWebSerie(String serieName){
+	public void searchWebSerie(String serieName) {
 		String url = ADDRESS + serieName.replace(" ", "+") + "&apikey=" + API_KEY;
 		String json = consumption.getData(url);
-		SerieData data = converter.getData(json, SerieData.class);
+		data = converter.getData(json, SerieData.class);
+		System.out.println(data.title() + " - " + data.year() + ", avaliação média no IMDB: " + data.imdbRating() + ", contém " + data.totalSeasons() + " temporadas.");
 		series.add(data);
 	}
 
-	public List<SeasonData> getSeasons(String serieName) {
-		String url = ADDRESS + serieName.replace(" ", "+") + "&apikey=" + API_KEY;
-		String json = consumption.getData(url);
-		SerieData serie = converter.getData(json, SerieData.class);
-		List<SeasonData> seasons = new ArrayList<>();
-
-		for (int i = 1; i <= serie.totalSeasons(); i++) {
-			json = consumption.getData(ADDRESS + serieName.replace(" ", "+") + "&season=" + i + "&apikey=" + API_KEY);
-			SeasonData seasonData = converter.getData(json, SeasonData.class);
-			seasons.add(seasonData);
-		}
-
-		return seasons;
+	public void listSeries() {
+		series.forEach(System.out::println);
 	}
+
 
 
 }
