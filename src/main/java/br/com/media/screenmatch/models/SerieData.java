@@ -11,13 +11,7 @@ public record SerieData(
 		String imdbRating,
 		@JsonAlias("Genre") String genre,
 		@JsonAlias("Actors") String actores,
-@JsonAlias("Plot") String plot,
+		@JsonAlias("Plot") String plot,
 		@JsonAlias("Poster") String post
-		) {
-	@Override
-	public String toString() {
-		return title + " - " + year + ", avaliação média no IMDB: " + imdbRating + ", contém " + totalSeasons + " temporadas.";
-	}
-
-
+) {
 }

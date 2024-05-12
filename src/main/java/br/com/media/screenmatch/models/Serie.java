@@ -1,7 +1,5 @@
 package br.com.media.screenmatch.models;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-
 import java.util.OptionalDouble;
 
 public class Serie {
@@ -70,30 +68,36 @@ public class Serie {
 		this.plot = plot;
 	}
 
-	public StringgetPost() {
+	public String getPost() {
 		return post;
 	}
 
-	public void stPost(String post) {
-		this.post = pst;
+	public void setPost(String post) {
+		this.post = post;
 	}
 
-	public Serie(erieData serieData) {
-		this.actores serieData.actores();
-		this.genre = ategory.valueOf(serieData.genre().split(",")[0].trim());
-		this.plot = srieData.plot();
-		this.post = srieData.post();
-		this.title = erieData.title();
-		this.totalSeaons = serieData.totalSeasons();
-		this.year = srieData.year();
+	public Serie(SerieData serieData) {
+		this.actores = serieData.actores();
+		this.plot = serieData.plot();
+		this.post = serieData.post();
+		this.title = serieData.title();
+		this.totalSeasons = serieData.totalSeasons();
+		this.year = serieData.year();
 
-		this.imdbRatig = OptionalDouble.of(Double.valueOf(serieData.imdbRating())).orElse(0);
+		this.imdbRating = OptionalDouble.of(Double.valueOf(serieData.imdbRating())).orElse(0);
+
+		try {
+			String genreString = serieData.genre().split(",")[0].trim();
+			this.genre = Category.valueOf(genreString.toUpperCase());
+		}catch (IllegalArgumentException error){
+			System.err.println("Gênero não encontrado" + error);
+		}
 	}
 
 	@Override
 	public String toString() {
 		return "Título: " + title +
-				+"(" + year + ")" +
+				"(" + year + ")" +
 				"," + "total de temporadas: " + totalSeasons +
 				", média de avaliações no IMDB: " + imdbRating +
 				", gênero: " + genre +
