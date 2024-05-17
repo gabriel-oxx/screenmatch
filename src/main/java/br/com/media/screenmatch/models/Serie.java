@@ -1,5 +1,8 @@
 package br.com.media.screenmatch.models;
 
+import br.com.media.screenmatch.service.TranslateService;
+
+import java.net.URISyntaxException;
 import java.util.OptionalDouble;
 
 public class Serie {
@@ -76,7 +79,7 @@ public class Serie {
 		this.post = post;
 	}
 
-	public Serie(SerieData serieData) {
+	public Serie(SerieData serieData) throws URISyntaxException {
 		this.actores = serieData.actores();
 		this.plot = serieData.plot();
 		this.post = serieData.post();

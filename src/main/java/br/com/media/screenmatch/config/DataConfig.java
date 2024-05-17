@@ -7,11 +7,11 @@ import java.util.Properties;
 
 public class DataConfig {
 	private String apiKey;
-	//br/com/media/screenmatch/config/
 
-	public String getConfig( ){
+	public String getOmDBConfig( ){
 		Properties properties = new Properties();
-		try (InputStream input = new FileInputStream("config.properties")) {
+		try {
+			InputStream input = new FileInputStream("config.properties");
 			if (input == null) {
 				throw new RuntimeException("Não foi possível encontrar o arquivo de configurações");
 			}
@@ -20,6 +20,21 @@ public class DataConfig {
 			throw new RuntimeException(e);
 		}
 		 apiKey = properties.getProperty("apiKey");
+		return  apiKey;
+	}
+
+	public String getOpenaiConfig(){
+		Properties properties = new Properties();
+		try {
+			InputStream input = new FileInputStream("config.properties");
+			if (input == null) {
+				throw new RuntimeException("Não foi possível encontrar o arquivo de configurações");
+			}
+			properties.load(input);
+		}catch (IOException e){
+			throw  new RuntimeException(e);
+		}
+		apiKey = properties.getProperty("apiOpenaiKey");
 		return  apiKey;
 	}
 }

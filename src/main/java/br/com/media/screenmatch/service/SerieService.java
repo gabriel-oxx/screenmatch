@@ -4,6 +4,7 @@ import br.com.media.screenmatch.config.DataConfig;
 import br.com.media.screenmatch.models.Serie;
 import br.com.media.screenmatch.models.SerieData;
 
+import java.net.URISyntaxException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public class SerieService {
 	private DataConverter converter = new DataConverter();
 	private DataConfig dataConfig = new DataConfig();
 	private final String ADDRESS = "https://www.omdbapi.com/?t=";
-	private final String API_KEY = dataConfig.getConfig();
+	private final String API_KEY = dataConfig.getOmDBConfig();
 	private List<SerieData> seriesData = new ArrayList<>();
 	SerieData data;
 
@@ -30,7 +31,13 @@ public class SerieService {
 	public void listSeries() {
 		List<Serie> series = new ArrayList<>();
 series = seriesData.stream()
-		.map(d -> new Serie(d))
+		.map(d -> {
+			try {
+				return new Serie(d);
+			} catch (URISyntaxException e) {
+				throw new RuntimeException(e);
+			}
+		})
 		.collect(Collectors.toList());
 series.stream()
 		.sorted(Comparator.comparing(Serie::getGenre))

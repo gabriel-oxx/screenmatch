@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 @SpringBootApplication
@@ -19,7 +20,7 @@ public class ScreenmatchApplication implements CommandLineRunner {
 
 	//implementação do método run da interface CommandLineRunner
 	@Override
-	public void run(String... args) {
+	public void run(String... args) throws URISyntaxException {
 		Main main = new Main();
 		main.displayMenu();
 	}
