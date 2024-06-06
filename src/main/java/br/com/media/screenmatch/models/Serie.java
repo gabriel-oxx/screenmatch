@@ -26,7 +26,7 @@ public class Serie {
 	private String actores;
 	private String plot;
 	private String post;
-	@OneToMany(mappedBy = "serie")
+	@OneToMany(mappedBy = "series")
 	private List<Episode> episodes = new ArrayList<>();
 
 	public Serie() {
