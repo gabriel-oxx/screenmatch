@@ -5,6 +5,8 @@ package br.com.media.screenmatch.models;
 import jakarta.persistence.*;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalDouble;
 
 
@@ -24,6 +26,8 @@ public class Serie {
 	private String actores;
 	private String plot;
 	private String post;
+	@OneToMany(mappedBy = "serie")
+	private List<Episode> episodes = new ArrayList<>();
 
 	public Serie() {
 	}
