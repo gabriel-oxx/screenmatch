@@ -1,3 +1,4 @@
+/*
 package br.com.media.screenmatch.service;
 
 import br.com.media.screenmatch.config.DataConfig;
@@ -15,7 +16,7 @@ public class SerieService {
 	private DataConverter converter = new DataConverter();
 	private DataConfig dataConfig = new DataConfig();
 	private final String ADDRESS = "https://www.omdbapi.com/?t=";
-	private final String API_KEY = dataConfig.getOmDBConfig();
+	private final String API_KEY = "c981cb6e";
 	private List<SerieData> seriesData = new ArrayList<>();
 	SerieData data;
 
@@ -47,3 +48,4 @@ series.stream()
 
 
 }
+*/

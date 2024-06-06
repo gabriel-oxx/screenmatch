@@ -1,22 +1,32 @@
 package br.com.media.screenmatch.main;
 
-import br.com.media.screenmatch.models.Episode;
-import br.com.media.screenmatch.models.SeasonData;
+import br.com.media.screenmatch.config.DataConfig;
+import br.com.media.screenmatch.models.Serie;
 import br.com.media.screenmatch.models.SerieData;
 import br.com.media.screenmatch.service.*;
+import br.com.media.screenmatch.models.repository.SerieRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import java.net.URISyntaxException;
-import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
+
 
 public class Main {
 	private final Scanner input = new Scanner(System.in);
+	ApiConsumption consumption = new ApiConsumption();
+	DataConverter converter = new DataConverter();
+	DataConfig config = new DataConfig();
+	SerieData data;
+	private SerieRepository repository;
 
-	public void displayMenu() throws URISyntaxException {
-		SerieService serieService = new SerieService();
-		EpisodeService episodeService = new EpisodeService();
-		RatingService ratingService = new RatingService();
-		DateService dateService = new DateService();
+	public Main(SerieRepository repository) {
+		this.repository = repository;
+	}
+
+	public void displayMenu() {
 
 		String menu = """
 				Escolha uma das opções:
@@ -43,7 +53,7 @@ public class Main {
 						System.out.println("Insira o nome da série que você deseja pesquisar");
 						try {
 							search = input.nextLine();
-							serieService.searchWebSerie(search);
+							searchWebSerie(search);
 						} catch (InputMismatchException error) {
 							System.err.println("O valor que você inseriu não é válido aqui." + error.getMessage());
 						}
@@ -51,9 +61,10 @@ public class Main {
 					case 2:
 						System.out.println("Insira o nome do episódio que você deseja pesquisar");
 						search = input.nextLine();
+						searchWebSerie(search);
 						break;
 					case 3:
-						serieService.listSeries();
+						listSeries();
 						break;
 					default:
 						System.out.println("Opção inválida");
@@ -62,6 +73,44 @@ public class Main {
 			} catch (InputMismatchException error) {
 				System.err.println("O valor que você inseriu não é válido aqui." + error.getMessage());
 			}
+		}
+
+	}
+
+
+	private void searchWebSerie(String serieName) {
+		String API_KEY = System.getenv("OMDB_API_KEY");
+		String ADDRESS = "https://www.omdbapi.com/?t=";
+		String url = ADDRESS + serieName.replace(" ", "+") + "&apikey=" + API_KEY;
+		String json = consumption.getData(url);
+
+		data = converter.getData(json, SerieData.class);
+		System.out.println(data.title() + " - " + data.year() + ", avaliação média no IMDB: " + data.imdbRating() + ", contém " + data.totalSeasons() + " temporadas.");
+		Serie serie = null;
+		try {
+			serie = new Serie(data);
+			repository.save(serie);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void listSeries() {
+		List<Serie> series = repository.findAll();
+
+		try {
+			List<Serie> seriesWithGenre = series.stream()
+					.filter(s -> s.getGenre() != null)
+					.sorted(Comparator.comparing(Serie::getGenre))
+					.collect(Collectors.toList());
+			List<Serie> seriesWithoutGenre = series.stream()
+					.filter(s -> s.getGenre() == null)
+					.collect(Collectors.toList());
+			List<Serie> sortedSeries = new ArrayList<>(seriesWithGenre);
+			sortedSeries.addAll(seriesWithoutGenre);
+			sortedSeries.forEach(System.out::println);
+		} catch (NullPointerException error) {
+			System.err.println("Temos uma exceção aqui: " + error.getMessage());
 		}
 
 	}

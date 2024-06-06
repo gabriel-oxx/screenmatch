@@ -1,19 +1,32 @@
 package br.com.media.screenmatch.models;
 
-import br.com.media.screenmatch.service.TranslateService;
+//import br.com.media.screenmatch.service.TranslateService;
+
+import jakarta.persistence.*;
 
 import java.net.URISyntaxException;
 import java.util.OptionalDouble;
 
+
+@Entity
+@Table(name = "series")
 public class Serie {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
+	@Column(unique = true)
 	private String title;
 	private String year;
 	private Integer totalSeasons;
 	private double imdbRating;
+	@Enumerated(EnumType.STRING)
 	private Category genre;
 	private String actores;
 	private String plot;
 	private String post;
+
+	public Serie() {
+	}
 
 	public String getTitle() {
 		return title;
@@ -86,13 +99,12 @@ public class Serie {
 		this.title = serieData.title();
 		this.totalSeasons = serieData.totalSeasons();
 		this.year = serieData.year();
-
 		this.imdbRating = OptionalDouble.of(Double.valueOf(serieData.imdbRating())).orElse(0);
 
 		try {
 			String genreString = serieData.genre().split(",")[0].trim();
 			this.genre = Category.valueOf(genreString.toUpperCase());
-		}catch (IllegalArgumentException error){
+		} catch (IllegalArgumentException error) {
 			System.err.println("Gênero não encontrado" + error);
 		}
 	}
