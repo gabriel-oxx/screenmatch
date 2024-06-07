@@ -26,7 +26,7 @@ public class Serie {
 	private String actores;
 	private String plot;
 	private String post;
-	@OneToMany(mappedBy = "series")
+	@OneToMany(mappedBy = "serie")
 	private List<Episode> episodes = new ArrayList<>();
 
 	public Serie() {
@@ -111,6 +111,22 @@ public class Serie {
 		} catch (IllegalArgumentException error) {
 			System.err.println("Gênero não encontrado" + error);
 		}
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public List<Episode> getEpisodes() {
+		return episodes;
+	}
+
+	public void setEpisodes(List<Episode> episodes) {
+		this.episodes = episodes;
 	}
 
 	@Override

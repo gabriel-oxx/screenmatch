@@ -133,7 +133,6 @@ public class Main {
 				SeasonData season = converter.getData(json, SeasonData.class);
 				seasons.add(season);
 			}
-			seasons.forEach(System.out::println);
 
 
 			List<Episode> episodes = seasons.stream()
@@ -142,6 +141,7 @@ public class Main {
 							.map(e -> new Episode(d.number(), e))
 					)
 					.collect(Collectors.toList());
+			episodes.forEach(System.out::println);
 			seriesFound.setEpisodes(episodes);
 			repository.save(seriesFound);
 		} else {

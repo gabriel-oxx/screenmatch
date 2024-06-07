@@ -1,6 +1,6 @@
 package br.com.media.screenmatch.models;
 
-importjakarta.persistence.ManyToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "episodies")
+@Table(name = "episodes")
 public class Episode {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +21,9 @@ public class Episode {
 	private LocalDate releaseDate;
 	@ManyToOne
 	private Serie serie;
+
+	public Episode() {
+	}
 
 	public Episode(Integer seasonNumber, EpisodeData episodeData) {
 		this.season = seasonNumber;
