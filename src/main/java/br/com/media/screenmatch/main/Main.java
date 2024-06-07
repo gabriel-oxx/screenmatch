@@ -1,13 +1,12 @@
 package br.com.media.screenmatch.main;
 
 import br.com.media.screenmatch.config.DataConfig;
+import br.com.media.screenmatch.models.Episode;
+import br.com.media.screenmatch.models.SeasonData;
 import br.com.media.screenmatch.models.Serie;
 import br.com.media.screenmatch.models.SerieData;
 import br.com.media.screenmatch.service.*;
 import br.com.media.screenmatch.models.repository.SerieRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 
 import java.net.URISyntaxException;
 import java.util.*;
@@ -21,6 +20,7 @@ public class Main {
 	DataConfig config = new DataConfig();
 	SerieData data;
 	private SerieRepository repository;
+	private List<Serie> series = new ArrayList<>();
 
 	public Main(SerieRepository repository) {
 		this.repository = repository;
@@ -31,7 +31,7 @@ public class Main {
 		String menu = """
 				Escolha uma das opções:
 				1 - pesquisar séries
-				2 - pesquisar por episódios
+				2 - Verificar episódios de uma série
 				3 - listar séries 
 				0 - sair
 				""";
@@ -59,9 +59,7 @@ public class Main {
 						}
 						break;
 					case 2:
-						System.out.println("Insira o nome do episódio que você deseja pesquisar");
-						search = input.nextLine();
-						searchWebSerie(search);
+						listSeriesEpisode();
 						break;
 					case 3:
 						listSeries();
@@ -83,7 +81,6 @@ public class Main {
 		String ADDRESS = "https://www.omdbapi.com/?t=";
 		String url = ADDRESS + serieName.replace(" ", "+") + "&apikey=" + API_KEY;
 		String json = consumption.getData(url);
-
 		data = converter.getData(json, SerieData.class);
 		System.out.println(data.title() + " - " + data.year() + ", avaliação média no IMDB: " + data.imdbRating() + ", contém " + data.totalSeasons() + " temporadas.");
 		Serie serie = null;
@@ -96,8 +93,7 @@ public class Main {
 	}
 
 	public void listSeries() {
-		List<Serie> series = repository.findAll();
-
+		series = repository.findAll();
 		try {
 			List<Serie> seriesWithGenre = series.stream()
 					.filter(s -> s.getGenre() != null)
@@ -111,6 +107,45 @@ public class Main {
 			sortedSeries.forEach(System.out::println);
 		} catch (NullPointerException error) {
 			System.err.println("Temos uma exceção aqui: " + error.getMessage());
+		}
+
+	}
+
+	private void listSeriesEpisode() {
+		System.out.println("Essa é a lista de séries disponíveis no momento:");
+		listSeries();
+		System.out.println("Digite o nome de uma das séries dessa lista e eu exibirei os episódios dela pra você");
+		String search = input.nextLine();
+		Optional<Serie> serie = series.stream()
+				.filter(s -> s.getTitle().toLowerCase().contains(search.toLowerCase()))
+				.findFirst();
+		List<SeasonData> seasons = new ArrayList<>();
+
+		if (serie.isPresent()) {
+			var seriesFound = serie.get();
+
+			for (int i = 1; i <= seriesFound.getTotalSeasons(); i++) {
+
+				String API_KEY = System.getenv("OMDB_API_KEY");
+				String ADDRESS = "https://www.omdbapi.com/?t=";
+				String url = ADDRESS + seriesFound.getTitle().replace(" ", "+") + "&season=" + i + "&apikey=" + API_KEY;
+				var json = consumption.getData(url);
+				SeasonData season = converter.getData(json, SeasonData.class);
+				seasons.add(season);
+			}
+			seasons.forEach(System.out::println);
+
+
+			List<Episode> episodes = seasons.stream()
+					.flatMap(d -> d.episodes()
+							.stream()
+							.map(e -> new Episode(d.number(), e))
+					)
+					.collect(Collectors.toList());
+			seriesFound.setEpisodes(episodes);
+			repository.save(seriesFound);
+		} else {
+			System.out.println("Não foi possível encontrar essa série por aqui");
 		}
 
 	}
