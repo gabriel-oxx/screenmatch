@@ -1,16 +1,29 @@
 package br.com.media.screenmatch.models;
 
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Entity
+@Table(name = "episodes")
 public class Episode {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 	private Integer season;
 	private String title;
 	private Integer number;
 	private double rating;
 	private LocalDate releaseDate;
+	@ManyToOne
+	private Serie serie;
+
+	public Episode() {
+	}
 
 	public Episode(Integer seasonNumber, EpisodeData episodeData) {
 		this.season = seasonNumber;
@@ -68,6 +81,22 @@ public class Episode {
 
 	public void setReleaseDate(LocalDate releaseDate) {
 		this.releaseDate = releaseDate;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Serie getSerie() {
+		return serie;
+	}
+
+	public void setSerie(Serie serie) {
+		this.serie = serie;
 	}
 
 	@Override
