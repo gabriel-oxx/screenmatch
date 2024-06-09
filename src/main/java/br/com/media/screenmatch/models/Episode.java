@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "episodes")
@@ -14,9 +12,9 @@ public class Episode {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private Integer season;
 	private String title;
 	private Integer number;
+	private Integer season;
 	private double rating;
 	private LocalDate releaseDate;
 	@ManyToOne
