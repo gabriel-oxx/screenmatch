@@ -1,10 +1,7 @@
 package br.com.media.screenmatch.main;
 
 
-import br.com.media.screenmatch.models.Episode;
-import br.com.media.screenmatch.models.SeasonData;
-import br.com.media.screenmatch.models.Serie;
-import br.com.media.screenmatch.models.SerieData;
+import br.com.media.screenmatch.models.*;
 import br.com.media.screenmatch.service.*;
 import br.com.media.screenmatch.models.repository.SerieRepository;
 
@@ -33,7 +30,9 @@ public class Main {
 				2 - pesquisar série por título
 				3 - pesquisar série por ano
 				4 - Verificar episódios de uma série
-				5 - listar séries 
+				5 - listar séries
+				6 - listar as 5 séries mais bem avaliadas
+				7 - pesquisar séries por gênero
 				0 - sair
 				""";
 		String search = "";
@@ -70,6 +69,13 @@ public class Main {
 						break;
 					case 5:
 						listSeries();
+						break;
+					case 6:
+						listTop5Series();
+						break;
+					case 7:
+						searchSerieByGenre();
+						break;
 					default:
 						System.out.println("Opção inválida");
 						break;
@@ -79,6 +85,20 @@ public class Main {
 			}
 		}
 
+	}
+
+	private void searchSerieByGenre() {
+		System.out.println("Insira a categoria desejada");
+		var search = input.nextLine();
+		Category category = Category.fromPortuguese(search);
+		List<Serie> seriesList = repository.findByGenre(category);
+
+		if (seriesList.size() > 0) {
+			System.out.println("Aqui está:");
+			seriesList.forEach(s -> System.out.println(s.getTitle()));
+		}
+		else
+			System.out.println("Nenhuma série com essa categoria foi encontrada");
 	}
 
 
@@ -189,6 +209,12 @@ public class Main {
 			seriesList.forEach(s -> System.out.println("Título: " + s.getTitle() + ", ano de lançamento: " + s.getYear()));
 		} else
 			System.out.println("É, não há nada");
+	}
+
+	private void listTop5Series() {
+		System.out.println("Essas são as top 5 séries:");
+		List<Serie> seriesList = repository.findTop5ByOrderByImdbRatingDesc();
+		seriesList.forEach(s -> System.out.println("Título: " + s.getTitle() + " média: " + s.getImdbRating()));
 	}
 
 
