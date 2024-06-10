@@ -1,10 +1,7 @@
 package br.com.media.screenmatch.main;
 
-import br.com.media.screenmatch.config.DataConfig;
-import br.com.media.screenmatch.models.Episode;
-import br.com.media.screenmatch.models.SeasonData;
-import br.com.media.screenmatch.models.Serie;
-import br.com.media.screenmatch.models.SerieData;
+
+import br.com.media.screenmatch.models.*;
 import br.com.media.screenmatch.service.*;
 import br.com.media.screenmatch.models.repository.SerieRepository;
 
@@ -17,7 +14,6 @@ public class Main {
 	private final Scanner input = new Scanner(System.in);
 	ApiConsumption consumption = new ApiConsumption();
 	DataConverter converter = new DataConverter();
-	DataConfig config = new DataConfig();
 	SerieData data;
 	private SerieRepository repository;
 	private List<Serie> series = new ArrayList<>();
@@ -31,11 +27,15 @@ public class Main {
 		String menu = """
 				Escolha uma das opções:
 				1 - pesquisar séries
-				2 - Verificar episódios de uma série
-				3 - listar séries 
+				2 - pesquisar série por título
+				3 - pesquisar série por ano
+				4 - Verificar episódios de uma série
+				5 - listar séries
+				6 - listar as 5 séries mais bem avaliadas
+				7 - pesquisar séries por gênero
 				0 - sair
 				""";
-		String search;
+		String search = "";
 		int option = -1;
 
 		while (option != 0) {
@@ -59,10 +59,22 @@ public class Main {
 						}
 						break;
 					case 2:
-						listSeriesEpisode();
+						searchSerieByTitle();
 						break;
 					case 3:
+						searchSerieByYear();
+						break;
+					case 4:
+						listSeriesEpisode();
+						break;
+					case 5:
 						listSeries();
+						break;
+					case 6:
+						listTop5Series();
+						break;
+					case 7:
+						searchSerieByGenre();
 						break;
 					default:
 						System.out.println("Opção inválida");
@@ -73,6 +85,20 @@ public class Main {
 			}
 		}
 
+	}
+
+	private void searchSerieByGenre() {
+		System.out.println("Insira a categoria desejada");
+		var search = input.nextLine();
+		Category category = Category.fromPortuguese(search);
+		List<Serie> seriesList = repository.findByGenre(category);
+
+		if (seriesList.size() > 0) {
+			System.out.println("Aqui está:");
+			seriesList.forEach(s -> System.out.println(s.getTitle()));
+		}
+		else
+			System.out.println("Nenhuma série com essa categoria foi encontrada");
 	}
 
 
@@ -104,7 +130,15 @@ public class Main {
 					.collect(Collectors.toList());
 			List<Serie> sortedSeries = new ArrayList<>(seriesWithGenre);
 			sortedSeries.addAll(seriesWithoutGenre);
-			sortedSeries.forEach(System.out::println);
+			int lastIndex = sortedSeries.size() - 1;
+			for (int i = 0; i < lastIndex; i++) {
+				Serie s = sortedSeries.get(i);
+				if (i < lastIndex - 1)
+					System.out.print(s.getTitle() + ", ");
+				else
+					System.out.print(s.getTitle() + ".\n");
+			}
+
 		} catch (NullPointerException error) {
 			System.err.println("Temos uma exceção aqui: " + error.getMessage());
 		}
@@ -150,6 +184,40 @@ public class Main {
 
 	}
 
+	private void searchSerieByTitle() {
+		System.out.println("Essa é a lista de séries disponíveis no momento:");
+		listSeries();
+		System.out.println("Digite o nome de uma das séries dessa lista");
+		String search = input.nextLine();
+		Optional<Serie> serie = repository.findByTitleContainingIgnoreCase(search);
+
+		if (serie.isPresent()) {
+			System.out.println("Dados da série:\n" + serie.get());
+		} else {
+			System.out.println("Não foi possível encontrar essa série");
+		}
+	}
+
+	void searchSerieByYear() {
+		System.out.println("Essa é a lista de séries disponíveis no momento:");
+		listSeries();
+		System.out.println("Digite um ano, e eu verificarei se háséries lançadas no ano que você escolheu");
+		String search = input.nextLine();
+		List<Serie> seriesList = repository.findByYearContaining(search);
+		if (seriesList.size() > 0) {
+			System.out.print("Aqui está:\n");
+			seriesList.forEach(s -> System.out.println("Título: " + s.getTitle() + ", ano de lançamento: " + s.getYear()));
+		} else
+			System.out.println("É, não há nada");
+	}
+
+	private void listTop5Series() {
+		System.out.println("Essas são as top 5 séries:");
+		List<Serie> seriesList = repository.findTop5ByOrderByImdbRatingDesc();
+		seriesList.forEach(s -> System.out.println("Título: " + s.getTitle() + " média: " + s.getImdbRating()));
+	}
+
 
 }
+
 

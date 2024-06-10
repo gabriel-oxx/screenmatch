@@ -26,7 +26,7 @@ public class Serie {
 	private String actores;
 	private String plot;
 	private String post;
-	@OneToMany(mappedBy = "serie")
+	@OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<Episode> episodes = new ArrayList<>();
 
 	public Serie() {
@@ -126,6 +126,7 @@ public class Serie {
 	}
 
 	public void setEpisodes(List<Episode> episodes) {
+		episodes.forEach(e -> e.setSerie(this));
 		this.episodes = episodes;
 	}
 
@@ -133,7 +134,7 @@ public class Serie {
 	public String toString() {
 		return "Título: " + title +
 				"(" + year + ")" +
-				"," + "total de temporadas: " + totalSeasons +
+				", " + "total de temporadas: " + totalSeasons +
 				", média de avaliações no IMDB: " + imdbRating +
 				", gênero: " + genre +
 				", atores: " + actores +
