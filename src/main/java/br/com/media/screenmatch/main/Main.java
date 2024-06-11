@@ -17,6 +17,7 @@ public class Main {
 	SerieData data;
 	private SerieRepository repository;
 	private List<Serie> series = new ArrayList<>();
+	private Optional<Serie> searchSerie;
 
 	public Main(SerieRepository repository) {
 		this.repository = repository;
@@ -33,6 +34,8 @@ public class Main {
 				5 - listar séries
 				6 - listar as 5 séries mais bem avaliadas
 				7 - pesquisar séries por gênero
+				8 - listar os 5 episódios mais bem avaliados de uma série
+				9 - buscar episódios por data
 				0 - sair
 				""";
 		String search = "";
@@ -76,6 +79,12 @@ public class Main {
 					case 7:
 						searchSerieByGenre();
 						break;
+					case 8:
+						listTop5Episodes();
+						break;
+					case 9:
+						searchEpisodeByDate();
+						break;
 					default:
 						System.out.println("Opção inválida");
 						break;
@@ -87,6 +96,7 @@ public class Main {
 
 	}
 
+
 	private void searchSerieByGenre() {
 		System.out.println("Insira a categoria desejada");
 		var search = input.nextLine();
@@ -96,8 +106,7 @@ public class Main {
 		if (seriesList.size() > 0) {
 			System.out.println("Aqui está:");
 			seriesList.forEach(s -> System.out.println(s.getTitle()));
-		}
-		else
+		} else
 			System.out.println("Nenhuma série com essa categoria foi encontrada");
 	}
 
@@ -189,10 +198,10 @@ public class Main {
 		listSeries();
 		System.out.println("Digite o nome de uma das séries dessa lista");
 		String search = input.nextLine();
-		Optional<Serie> serie = repository.findByTitleContainingIgnoreCase(search);
+		searchSerie = repository.findByTitleContainingIgnoreCase(search);
 
-		if (serie.isPresent()) {
-			System.out.println("Dados da série:\n" + serie.get());
+		if (searchSerie.isPresent()) {
+			System.out.println("Dados da série:\n" + searchSerie.get());
 		} else {
 			System.out.println("Não foi possível encontrar essa série");
 		}
@@ -215,6 +224,31 @@ public class Main {
 		System.out.println("Essas são as top 5 séries:");
 		List<Serie> seriesList = repository.findTop5ByOrderByImdbRatingDesc();
 		seriesList.forEach(s -> System.out.println("Título: " + s.getTitle() + " média: " + s.getImdbRating()));
+	}
+
+
+	private void listTop5Episodes() {
+		searchSerieByTitle();
+
+		if (searchSerie.isPresent()) {
+			Serie serie = searchSerie.get();
+			List<Episode> topEpisodes = repository.topEpisodesBySerie(serie);
+			topEpisodes.forEach(e -> System.out.println("Título: " + e.getTitle() + " média: " + e.getRating()));
+		}
+
+	}
+
+	private void searchEpisodeByDate() {
+		searchSerieByTitle();
+
+		if (searchSerie.isPresent()) {
+			Serie serie = searchSerie.get();
+			System.out.println("Você deseja ver episódios lançados a partir de que ano?");
+			var releaseYear = input.nextInt();
+			input.nextLine();
+			List<Episode> episodes = repository.episodesBySerieAndYear(serie, releaseYear);
+			episodes.forEach(System.out::println);
+		}
 	}
 
 
