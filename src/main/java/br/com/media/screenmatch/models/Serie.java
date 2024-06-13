@@ -2,6 +2,7 @@ package br.com.media.screenmatch.models;
 
 //import br.com.media.screenmatch.service.TranslateService;
 
+import br.com.media.screenmatch.service.TranslateService;
 import jakarta.persistence.*;
 
 import java.net.URISyntaxException;
@@ -81,7 +82,7 @@ public class Serie {
 	}
 
 	public String getPlot() {
-		return plot;
+		return TranslateService.translate(plot);
 	}
 
 	public void setPlot(String plot) {
@@ -98,7 +99,7 @@ public class Serie {
 
 	public Serie(SerieData serieData) throws URISyntaxException {
 		this.actores = serieData.actores();
-		this.plot = serieData.plot();
+		this.plot = TranslateService.translate(serieData.plot());
 		this.post = serieData.post();
 		this.title = serieData.title();
 		this.totalSeasons = serieData.totalSeasons();
