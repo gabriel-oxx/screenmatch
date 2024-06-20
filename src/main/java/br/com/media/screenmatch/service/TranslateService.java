@@ -12,6 +12,6 @@ public class TranslateService {
 				.modelName("gemini-1.5-flash-001")
 				.build();
 
-		return model.generate("Traduza o texto a seguir. Não acrescente nenhuma informação, apenas traduza o texto. Texto: '" + text + "'");
+		return model.generate("Traduza o texto a seguir, mas apenas se ele não já estiver em português. Não acrescente nenhuma informação, apenas traduza o texto. Texto: " +text);
 	}
 }
