@@ -2,6 +2,7 @@ package br.com.media.screenmatch.models;
 
 //import br.com.media.screenmatch.service.TranslateService;
 
+import br.com.media.screenmatch.service.TranslateService;
 import jakarta.persistence.*;
 
 import java.net.URISyntaxException;

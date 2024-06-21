@@ -201,7 +201,15 @@ public class Main {
 		searchSerie = repository.findByTitleContainingIgnoreCase(search);
 
 		if (searchSerie.isPresent()) {
-			System.out.println("Dados da série:\n" + searchSerie.get());
+			Serie data = searchSerie.get();
+			System.out.println("Dados da série:\n");
+			System.out.println("Título: " + data.getTitle()
+					+ "\nmédia de avaliação: " + data.getImdbRating()
+					+ "\ngênero: " + TranslateService.translate(data.getGenre().toString().toLowerCase())
+					+ "\nsinopse: " + data.getPlot()
+					+ "\natores: " + data.getActores()
+					+ "\ntotal de temporadas: " + data.getTotalSeasons() + "."
+			);
 		} else {
 			System.out.println("Não foi possível encontrar essa série");
 		}
