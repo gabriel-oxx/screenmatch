@@ -1,12 +1,13 @@
 package br.com.media.screenmatch.service;
 
+import br.com.media.screenmatch.dto.EpisodeDto;
 import br.com.media.screenmatch.dto.SerieDto;
+import br.com.media.screenmatch.models.Category;
 import br.com.media.screenmatch.models.Serie;
 import br.com.media.screenmatch.models.repository.SerieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,7 +60,7 @@ public class SerieService {
 	}
 
 	public List<SerieDto> getReleases() {
-		return dataConverter(repository.findTop5ByOrderByEpisodesReleaseDateDesc());
+		return dataConverter(repository.latestReleases());
 	}
 
 
@@ -81,6 +82,46 @@ public class SerieService {
 			);
 		}
 		return null;
+	}
+
+
+	public List<EpisodeDto> getAllSeasons(Long id) {
+		Optional<Serie> serie = repository.findById(id);
+
+		if (serie.isPresent()) {
+			Serie s = serie.get();
+			return s.getEpisodes()
+					.stream()
+					.map(
+							e -> new EpisodeDto(
+									e.getTitle(),
+									e.getNumber(),
+									e.getSeason()
+							)
+					)
+					.collect(Collectors.toList());
+		}
+		return  null;
+	}
+
+
+	public EpisodeDto getSeasonByNumber(Long id, Long number) {
+return  repository.getEpisodesBySeason(id, number)
+		.stream()
+		.map(
+				e -> new EpisodeDto(
+						e.getTitle(),
+						e.getNumber(),
+						e.getSeason()
+				)
+		)
+		.collect(Collectors.toList());
+	}
+
+
+	public List<SerieDto> getSerieByGenre(String genre) {
+		Category category;
+		return  dataConverter(repository.findByGenre(category));
 	}
 
 

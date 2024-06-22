@@ -1,5 +1,6 @@
 package br.com.media.screenmatch.controller;
 
+import br.com.media.screenmatch.dto.EpisodeDto;
 import br.com.media.screenmatch.dto.SerieDto;
 import br.com.media.screenmatch.service.SerieService;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,19 @@ public class SerieController {
 		return service.getById(id);
 	}
 
+@GetMapping("/{id}/seasons/all")
+	public  List<EpisodeDto> getAllSeasons(@PathVariable Long id){
+	return  service.getAllSeasons(id);
+	}
 
+	@GetMapping("/{id}/seasons/number")
+	public  EpisodeDto getSeasonByNumber(@PathVariable Long id, @PathVariable Long number){
+return  service.getSeasonByNumber(id, number);
+	}
+
+	@GetMapping("/category/{genre}")
+	public List<SerieDto> getSerieByGenre(@PathVariable String genre){
+		return  service.getSerieByGenre(genre);
+	}
 }
 
